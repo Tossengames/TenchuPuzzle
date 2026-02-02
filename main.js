@@ -1,161 +1,169 @@
 let level = 1;
-let gridSize = 2;
-let pieces = [];
-let dragged = null;
+let gridSize = 4;
+let tiles = [];
+let selectedTile = null;
 let timer = null;
 let timeLeft = 0;
-let shuffleTriggered = false;
+let shuffleUsed = false;
 
 const imagePool = [
   "images/img1.jpg",
-  "images/img2.jpg"
+  "images/img2.jpg",
+  "images/img3.jpg"
 ];
 
-// ===== SCREEN UTILS =====
+// ---------- SCREEN ----------
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-// ===== GAME START =====
+// ---------- START ----------
 function startGame() {
   level = 1;
-  showDialogue("Let's see how long you last.", setupLevel);
+  showDialogue("Let’s see if you can handle chaos.", setupLevel);
 }
 
-// ===== LEVEL SETUP =====
+// ---------- LEVEL ----------
 function setupLevel() {
-  shuffleTriggered = false;
-  gridSize = level < 4 ? 2 : level < 8 ? 3 : 4;
+  shuffleUsed = false;
+  gridSize = Math.max(4, 3 + Math.floor(level / 3));
   showScreen("gameScreen");
   document.getElementById("levelText").textContent = `Level ${level}`;
 
-  if (level % 3 === 0) {
-    startTimer(30);
-  } else {
-    stopTimer();
-  }
+  if (level % 3 === 0) startTimer(45);
+  else stopTimer();
 
-  loadImage().then(img => createPuzzle(img));
+  loadImage().then(src => createPuzzle(src));
+
+  setTimeout(triggerShuffle, 5000);
 }
 
-// ===== IMAGE LOAD WITH FALLBACK =====
+// ---------- IMAGE ----------
 function loadImage() {
   return new Promise(resolve => {
-    const img = new Image();
+    if (imagePool.length === 0) {
+      resolve(makePlaceholder());
+      return;
+    }
+
     const src = imagePool[Math.floor(Math.random() * imagePool.length)];
-
+    const img = new Image();
     img.onload = () => resolve(src);
-    img.onerror = () => resolve(createPlaceholder());
-
+    img.onerror = () => resolve(makePlaceholder());
     img.src = src;
   });
 }
 
-function createPlaceholder() {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 300;
-  const ctx = canvas.getContext("2d");
+function makePlaceholder() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 320;
+  const ctx = c.getContext("2d");
   ctx.fillStyle = "#444";
-  ctx.fillRect(0,0,300,300);
-  ctx.fillStyle = "#888";
-  ctx.font = "30px sans-serif";
-  ctx.fillText("NO IMAGE", 70, 160);
-  return canvas.toDataURL();
+  ctx.fillRect(0, 0, 320, 320);
+  ctx.fillStyle = "#aaa";
+  ctx.font = "28px Arial";
+  ctx.fillText("PLACEHOLDER", 60, 170);
+  return c.toDataURL();
 }
 
-// ===== PUZZLE =====
-function createPuzzle(imgSrc) {
+// ---------- PUZZLE ----------
+function createPuzzle(img) {
   const puzzle = document.getElementById("puzzle");
   puzzle.innerHTML = "";
   puzzle.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-  pieces = [];
+
+  tiles = [];
 
   for (let i = 0; i < gridSize * gridSize; i++) {
-    pieces.push(i);
+    tiles.push(i);
   }
 
-  shuffleArray(pieces);
+  shuffleArray(tiles);
 
-  pieces.forEach((val, index) => {
-    const piece = document.createElement("div");
-    piece.className = "piece";
-    piece.draggable = true;
-    piece.dataset.correct = val;
-    piece.dataset.index = index;
+  tiles.forEach(pos => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.dataset.correct = pos;
 
-    const x = (val % gridSize) * -100;
-    const y = Math.floor(val / gridSize) * -100;
+    const size = 320 / gridSize;
+    const x = (pos % gridSize) * -size;
+    const y = Math.floor(pos / gridSize) * -size;
 
-    piece.style.backgroundImage = `url(${imgSrc})`;
-    piece.style.backgroundPosition = `${x}px ${y}px`;
-    piece.style.width = piece.style.height = `${300 / gridSize}px`;
+    tile.style.backgroundImage = `url(${img})`;
+    tile.style.backgroundPosition = `${x}px ${y}px`;
 
-    piece.ondragstart = () => dragged = piece;
-    piece.ondragover = e => e.preventDefault();
-    piece.ondrop = () => swapPieces(piece);
-
-    puzzle.appendChild(piece);
+    tile.onclick = () => selectTile(tile);
+    puzzle.appendChild(tile);
   });
-
-  setTimeout(triggerShuffleCheck, 4000);
 }
 
-function swapPieces(target) {
-  if (!dragged || dragged === target) return;
-
-  const a = dragged.style.backgroundPosition;
-  dragged.style.backgroundPosition = target.style.backgroundPosition;
-  target.style.backgroundPosition = a;
-
-  const c = dragged.dataset.correct;
-  dragged.dataset.correct = target.dataset.correct;
-  target.dataset.correct = c;
-
-  checkWin();
+// ---------- TAP SWAP ----------
+function selectTile(tile) {
+  if (!selectedTile) {
+    selectedTile = tile;
+    tile.classList.add("selected");
+  } else if (tile !== selectedTile) {
+    swapTiles(selectedTile, tile);
+    selectedTile.classList.remove("selected");
+    selectedTile = null;
+    checkWin();
+  }
 }
 
-// ===== SHUFFLE HANDICAP =====
-function triggerShuffleCheck() {
-  if (shuffleTriggered) return;
-  shuffleTriggered = true;
+function swapTiles(a, b) {
+  const temp = a.style.backgroundPosition;
+  a.style.backgroundPosition = b.style.backgroundPosition;
+  b.style.backgroundPosition = temp;
+
+  const d = a.dataset.correct;
+  a.dataset.correct = b.dataset.correct;
+  b.dataset.correct = d;
+}
+
+// ---------- SHUFFLE ----------
+function triggerShuffle() {
+  if (shuffleUsed) return;
+  shuffleUsed = true;
 
   showDialogue(
-    "I'm about to shuffle everything. Feeling lucky?",
+    "I’m about to shuffle everything. Try your luck?",
     () => {
       showDialogueButtons([
-        { text: "Accept Chaos", action: shufflePuzzle },
+        { text: "Accept Chaos", action: shuffleAll },
         { text: "Try Luck", action: () => showScreen("gambleScreen") }
       ]);
     }
   );
 }
 
-function shufflePuzzle() {
+function shuffleAll() {
   showScreen("gameScreen");
   const puzzle = document.getElementById("puzzle");
-  const children = Array.from(puzzle.children);
-  shuffleArray(children);
-  children.forEach(c => puzzle.appendChild(c));
+  const list = Array.from(puzzle.children);
+  shuffleArray(list);
+  list.forEach(t => puzzle.appendChild(t));
 }
 
-// ===== GAMBLE =====
+// ---------- GAMBLE ----------
 function resolveGamble(choice) {
-  showScreen("dialogueScreen");
   const result = Math.random() < 0.5 ? "heads" : "tails";
   if (choice === result) {
-    showDialogue("Luck is on your side. No shuffle.", () => showScreen("gameScreen"));
+    showDialogue("Luck saved you… this time.", () => showScreen("gameScreen"));
   } else {
-    showDialogue("Bad choice. Chaos time.", shufflePuzzle);
+    showDialogue("Bad luck. Chaos wins.", shuffleAll);
   }
 }
 
-// ===== WIN / LOSE =====
+// ---------- WIN ----------
 function checkWin() {
-  const pieces = document.querySelectorAll(".piece");
-  for (let p of pieces) {
-    if (parseInt(p.dataset.correct) !== [...p.parentNode.children].indexOf(p)) return;
+  const puzzle = document.getElementById("puzzle");
+  const children = Array.from(puzzle.children);
+
+  for (let i = 0; i < children.length; i++) {
+    if (parseInt(children[i].dataset.correct) !== i) return;
   }
+
   stopTimer();
   showScreen("winScreen");
 }
@@ -165,6 +173,7 @@ function nextLevel() {
   setupLevel();
 }
 
+// ---------- TIMER ----------
 function startTimer(seconds) {
   stopTimer();
   timeLeft = seconds;
@@ -185,17 +194,17 @@ function stopTimer() {
   document.getElementById("timerText").textContent = "";
 }
 
-// ===== DIALOGUE =====
-function showDialogue(text, callback) {
+// ---------- DIALOGUE ----------
+function showDialogue(text, next) {
   showScreen("dialogueScreen");
   document.getElementById("dialogueText").textContent = text;
-  showDialogueButtons([{ text: "Continue", action: callback }]);
+  showDialogueButtons([{ text: "Continue", action: next }]);
 }
 
-function showDialogueButtons(buttons) {
+function showDialogueButtons(btns) {
   const box = document.getElementById("dialogueButtons");
   box.innerHTML = "";
-  buttons.forEach(b => {
+  btns.forEach(b => {
     const btn = document.createElement("button");
     btn.textContent = b.text;
     btn.onclick = b.action;
@@ -203,7 +212,7 @@ function showDialogueButtons(buttons) {
   });
 }
 
-// ===== UTIL =====
+// ---------- UTIL ----------
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
