@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Chaos Puzzle</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="app">
 
-  <!-- MAIN MENU -->
+  <!-- MENU -->
   <div class="screen active" id="menuScreen">
     <h1>Chaos Puzzle</h1>
     <button onclick="startGame()">Start Game</button>
@@ -19,14 +20,14 @@
   <div class="screen" id="dialogueScreen">
     <div class="character">😈</div>
     <div class="dialogueBox" id="dialogueText"></div>
-    <div class="dialogueButtons" id="dialogueButtons"></div>
+    <div id="dialogueButtons"></div>
   </div>
 
-  <!-- GAMEPLAY -->
+  <!-- GAME -->
   <div class="screen" id="gameScreen">
     <div id="topBar">
-      <div id="levelText"></div>
-      <div id="timerText"></div>
+      <span id="levelText"></span>
+      <span id="timerText"></span>
     </div>
     <div id="puzzle"></div>
   </div>
@@ -47,7 +48,7 @@
 
   <!-- LOSE -->
   <div class="screen" id="loseScreen">
-    <h2>You Lost 💀</h2>
+    <h2>Time’s Up 💀</h2>
     <button onclick="startGame()">Retry</button>
   </div>
 
