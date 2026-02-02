@@ -1,6 +1,12 @@
+* {
+  box-sizing: border-box;
+  touch-action: none;
+  user-select: none;
+}
+
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   background: #111;
   color: #fff;
   text-align: center;
@@ -16,22 +22,36 @@ body {
 }
 
 button {
-  padding: 10px 20px;
+  padding: 12px 20px;
   margin: 10px;
+  font-size: 16px;
   cursor: pointer;
 }
 
+#topBar {
+  display: flex;
+  justify-content: space-between;
+  max-width: 320px;
+  margin: auto;
+  margin-bottom: 10px;
+}
+
 #puzzle {
+  width: 320px;
+  height: 320px;
+  margin: auto;
   display: grid;
-  margin: 20px auto;
-  width: 300px;
-  height: 300px;
   gap: 2px;
 }
 
-.piece {
-  background-size: 300px 300px;
-  cursor: grab;
+.tile {
+  background-size: 320px 320px;
+  background-repeat: no-repeat;
+  border: 1px solid #333;
+}
+
+.tile.selected {
+  outline: 3px solid yellow;
 }
 
 .character {
@@ -43,11 +63,4 @@ button {
   padding: 15px;
   margin: 15px auto;
   max-width: 400px;
-}
-
-#topBar {
-  display: flex;
-  justify-content: space-between;
-  max-width: 300px;
-  margin: auto;
 }
