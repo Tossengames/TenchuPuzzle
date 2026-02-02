@@ -1,0 +1,53 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #111;
+  color: #fff;
+  text-align: center;
+}
+
+.screen {
+  display: none;
+  padding: 20px;
+}
+
+.screen.active {
+  display: block;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+#puzzle {
+  display: grid;
+  margin: 20px auto;
+  width: 300px;
+  height: 300px;
+  gap: 2px;
+}
+
+.piece {
+  background-size: 300px 300px;
+  cursor: grab;
+}
+
+.character {
+  font-size: 80px;
+}
+
+.dialogueBox {
+  background: #222;
+  padding: 15px;
+  margin: 15px auto;
+  max-width: 400px;
+}
+
+#topBar {
+  display: flex;
+  justify-content: space-between;
+  max-width: 300px;
+  margin: auto;
+}
