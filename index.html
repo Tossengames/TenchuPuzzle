@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chaos Puzzle</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- MAIN MENU -->
+  <div class="screen active" id="menuScreen">
+    <h1>Chaos Puzzle</h1>
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <!-- DIALOGUE -->
+  <div class="screen" id="dialogueScreen">
+    <div class="character">😈</div>
+    <div class="dialogueBox" id="dialogueText"></div>
+    <div class="dialogueButtons" id="dialogueButtons"></div>
+  </div>
+
+  <!-- GAMEPLAY -->
+  <div class="screen" id="gameScreen">
+    <div id="topBar">
+      <div id="levelText"></div>
+      <div id="timerText"></div>
+    </div>
+    <div id="puzzle"></div>
+  </div>
+
+  <!-- GAMBLE -->
+  <div class="screen" id="gambleScreen">
+    <h2>Coin Flip</h2>
+    <p>Pick one</p>
+    <button onclick="resolveGamble('heads')">Heads</button>
+    <button onclick="resolveGamble('tails')">Tails</button>
+  </div>
+
+  <!-- WIN -->
+  <div class="screen" id="winScreen">
+    <h2>Level Complete 🎉</h2>
+    <button onclick="nextLevel()">Next Level</button>
+  </div>
+
+  <!-- LOSE -->
+  <div class="screen" id="loseScreen">
+    <h2>You Lost 💀</h2>
+    <button onclick="startGame()">Retry</button>
+  </div>
+
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
